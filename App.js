@@ -1,24 +1,22 @@
-import React, {useState, useEffect} from 'react';
-import {Text, View, StyleSheet, Button, Pressable} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import {BarCodeScanner} from 'expo-barcode-scanner';
 import * as Linking from 'expo-linking';
 
 export default function App() {
     const [hasPermission, setHasPermission] = useState(null);
-    const [scanned, setScanned] = useState(false);
+    const [onScan, setOnScan] = useState(true);
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
             const {status} = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         };
-
         getBarCodeScannerPermissions();
     }, []);
 
     const handleBarCodeScanned = ({type, data}) => {
-        setScanned(true);
-
+        setOnScan(true);
         // Check if the scanned data is a valid URL
         if (Linking.canOpenURL(data)) {
             Linking.openURL(data);
@@ -40,25 +38,31 @@ export default function App() {
                 <Text style={styles.title}>Application de QR Codes</Text>
             </View>
             <BarCodeScanner
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                onBarCodeScanned={onScan ? undefined : handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
             />
-            {scanned && (
-                <View style={styles.buttonContainer}>
-                    <Pressable style={styles.button} onPress={() => setScanned(false)}>
-                        <Text style={styles.text}>Appuyez pour scanner de nouveau</Text>
-                    </Pressable>
-                </View>
-            )}
+            <View style={styles.buttonContainer}>
+                <Pressable
+                    style={({pressed}) => [
+                        styles.button,
+                        {backgroundColor: pressed ? '#03AFD5FF' : '#5A03D5FF'},
+                    ]}
+                    onPress={() => setOnScan(false)}
+                >
+                    <Text style={styles.text}>Appuyez pour scanner</Text>
+                </Pressable>
+            </View>
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
         justifyContent: 'center',
+        backgroundColor: '#03d5cb',
     },
     buttonContainer: {
         position: 'absolute',
@@ -68,10 +72,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     button: {
-        backgroundColor: '#9f18b3',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 10,
+
+
     },
     text: {
         fontSize: 18,
