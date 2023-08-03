@@ -15,7 +15,7 @@ export default function App() {
         getBarCodeScannerPermissions();
     }, []);
 
-    const handleBarCodeScanned = ({type, data}) => {
+    const handleBarCodeScanned = ({data}) => {
         setOnScan(true);
         // Check if the scanned data is a valid URL
         if (Linking.canOpenURL(data)) {
